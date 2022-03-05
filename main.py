@@ -130,6 +130,7 @@ def products():
 
 @app.route('/filter_prudcts', methods=['GET','POST'])
 def filtr():
+    pass
     
 
 
