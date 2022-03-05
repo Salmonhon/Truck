@@ -1,4 +1,4 @@
-
+from datetime import datetime
 from configuration import app, db
 from flask_bcrypt import Bcrypt
 from flask import session, request, json, jsonify, redirect
@@ -66,7 +66,7 @@ def login():
             session['id'] = author_login.id
             return {
                 'id': author_login.id,
-                'type': 'Driver'
+                'type': 'Klient'
             }
         else:
             return 'Password or email is not correct'
@@ -95,11 +95,12 @@ def klient_product_serializer(Klient_products):
         'id': Klient_products.id,
         'title': Klient_products.title,
         'type_kuzov': Klient_products.type_kuzov,
-        'start_lokatsiya_A': Klient_products.start_lokatsiya_A,
-        'finish_lokatsiya_B': Klient_products.finish_lokatsiya_B,
+        'start_strana': Klient_products.start_starana,
+        'start_gorod': Klient_products.start_gorod,
+        'finish_strana': Klient_products.finish_starana,
+        'finish_gorod': Klient_products.finish_gorod,
         'obyom': Klient_products.obyom,
         'text': Klient_products.text,
-        'date': Klient_products.date,
         'phone': Klient_products.phone,
         'klientID': Klient_products.klientID
     }
@@ -125,9 +126,25 @@ def Klient_serializer(Klient):
 
 @app.route('/products', methods=['GET'])
 def products():
-    return jsonify([*map(driver_product_serializer, Driver_products.query.all())])
-# def products_2():
-#     return jsonify([*map(klient_product_serializer, Klient_Products.query.all())])
+    return jsonify([*map(klient_product_serializer, Klient_products.query.all())], [*map(driver_product_serializer, Driver_products.query.all())])
+
+@app.route('/filter_prudcts', methods=['GET','POST'])
+def filtr():
+    
+
+
+@app.route('/test_add', methods=['POST'])
+def test_add():
+    request_data = request.get_json()
+    id = request_data['id']
+    phone = request_data['phone']
+    if Driver.query.filter_by(id=id).first():
+        author_id = Driver.query.filter_by(id=id).first()
+        product = Driver_products(phone=phone, driverID=author_id)
+        db.session.add(product)
+        print('added')
+        return 'Succsefull'
+
 
 
 @app.route('/add_product', methods=['POST'])
@@ -136,39 +153,51 @@ def add_product():
     flag = request_data['flag']
     id_sesiya = request_data['id']
     if flag == '1':
-        author_login = Driver.query.filter_by(id=id_sesiya).first()
-        print(author_login)
+        if Driver.query.filter_by(id=id_sesiya).first():
+            author_login = Driver.query.filter_by(id=id_sesiya).first()
+            img = request_data['img']
+            obyom = request_data['obyom']
+            type_kuzov = request_data['type_kuzov']
+            lokatsiya_strana = request_data['lokatsiya_strana']
+            lokatsiya_gorod = request_data['lokatsiya_gorod']
+            phone = request_data['phone']
+            print(img, obyom, type_kuzov, lokatsiya_strana, lokatsiya_gorod, phone)
 
-        img = request_data['img']
-        obyom = request_data['obyom']
-        type_kuzov = request_data['type_kuzov']
-        lokatsiya_strana = request_data['lokatsiya_strana']
-        lokatsiya_gorod = request_data['lokatsiya_gorod']
-        phone = request_data['phone']
-        print(img, obyom, type_kuzov, lokatsiya_strana, lokatsiya_gorod, phone, token)
-        product = Driver_products(img=img, obyom=obyom, type_kuzov=type_kuzov, lokatsiya_strana=lokatsiya_strana, lokatsiya_gorod=lokatsiya_gorod, phone=phone, driverID=author_login)
-        print(product)
-        db.session.add(product)
-        db.session.commit()
-        return 'Succseful added'
+            product = Driver_products(img=img, obyom=obyom, type_kuzov=type_kuzov, lokatsiya_strana=lokatsiya_strana, lokatsiya_gorod=lokatsiya_gorod, phone=phone, driverID=request_data['id'])
+            db.session.add(product)
+            db.session.commit()
+            print('dafasfasfas')
+            return 'Succseful added'
+        else:
+            return "No such kind of Driver"
 
 
     else:
-        title = request_data['title']
-        type_kuzov = request_data['type_kuzov']
-        start_staran = request_data['start_strana']
-        start_gorod = request_data['start_gorod']
-        finish_strana = request_data['finish_strana']
-        finish_gorod = request_data['finish_gorod']
-        obyom = request_data['obyom']
-        text = request_data['text']
+        if Klient.query.filter_by(id=id_sesiya).first():
+            author_login = request_data['id']
+            title = request_data['title']
+            type_kuzov = request_data['type_kuzov']
+            start_staran = request_data['start_strana']
+            start_gorod = request_data['start_gorod']
+            finish_strana = request_data['finish_strana']
+            finish_gorod = request_data['finish_gorod']
+            obyom = request_data['obyom']
+            text = request_data['text']
+            phone = request_data['phone']
 
-        product = Klient_products(title=title, type_kuzov=type_kuzov, start_staran=start_staran, start_gorod=start_gorod, finish_strana=finish_strana, finish_gorod=finish_gorod, obyom=obyom, text=text)
-        db.session.add(product)
-        db.session.commit()
-        return 'Succseful added'
+            product = Klient_products(title=title, type_kuzov=type_kuzov, start_starana=start_staran, start_gorod=start_gorod, finish_starana=finish_strana, finish_gorod=finish_gorod, obyom=obyom, text=text,phone=phone,klientID=author_login)
+            db.session.add(product)
+            db.session.commit()
+            return 'Succseful added'
+        else:
+            return 'No such kind of klient'
+
+
+
 
 
 
 if __name__=="__main__":
     app.run(debug=True)
+
+
