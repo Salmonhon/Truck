@@ -2,7 +2,7 @@ from flask import Flask
 from flask_sqlalchemy import SQLAlchemy
 from flask_cors import CORS
 from flask_mail import Mail
-
+from flask_marshmallow import Marshmallow
 
 
 
@@ -21,3 +21,4 @@ CORS(app, resources={
 })
 
 db = SQLAlchemy(app)
+ma = Marshmallow(app)

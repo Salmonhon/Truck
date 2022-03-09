@@ -1,5 +1,6 @@
 from datetime import datetime
-from configuration import db
+from configuration import db,ma
+
 
 
 
@@ -25,8 +26,8 @@ class Klient(db.Model):
 
 
 
-    def __repr__(self):
-        return 'id:{}, sname:{}, email:{}, pswd:{}'.format(self.id, self.sname, self.email, self.pswd)
+    # def __repr__(self):
+    #     return 'id:{}, sname:{}, email:{}, pswd:{}'.format(self.id, self.sname, self.email, self.pswd)
 
 
 
@@ -41,8 +42,8 @@ class Driver_products(db.Model):
     phone = db.Column(db.String(), nullable=False)
     driverID = db.Column(db.Integer, db.ForeignKey('driver.id'), nullable=False)
 
-    def __repr__(self):
-        return 'id:{}, img:{}, date:{}, obyom:{}, type_kuzov:{}, lokatsiya_strana:{}, lokatsiya_gorod:{}, phone:{}, driverID:{}'.format(self.id, self.img, self.date, self.obyom, self.type_kuzov, self.lokatsiya_strana, self.lokatsiya_gorod, self.phone, self.driverID)
+    # def __repr__(self):
+    #     return 'id:{}, img:{}, date:{}, obyom:{}, type_kuzov:{}, lokatsiya_strana:{}, lokatsiya_gorod:{}, phone:{}, driverID:{}'.format(self.id, self.img, self.date, self.obyom, self.type_kuzov, self.lokatsiya_strana, self.lokatsiya_gorod, self.phone, self.driverID)
 
 class Klient_products(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -58,5 +59,25 @@ class Klient_products(db.Model):
     phone = db.Column(db.Integer, nullable=False)
     klientID = db.Column(db.Integer, db.ForeignKey('klient.id'), nullable=False)
 
-    def __repr__(self):
-         return 'id:{}, title:{}, type_kuzov:{}, start_strana:{}, start_gorod:{}, finish_strana:{}, finish_gorod:{}, obyom:{}, text:{}, date:{}, phone:{}, klientID:{}'.format(self.id, self.title, self.type_kuzov, self.start_starana, self.start_gorod, self.finish_starana, self.finish_gorod, self.obyom, self.text, self.date, self.phone,  self.klientID)
+    # def __repr__(self):
+    #      return 'id:{}, title:{}, type_kuzov:{}, start_strana:{}, start_gorod:{}, finish_strana:{}, finish_gorod:{}, obyom:{}, text:{}, date:{}, phone:{}, klientID:{}'.format(self.id, self.title, self.type_kuzov, self.start_starana, self.start_gorod, self.finish_starana, self.finish_gorod, self.obyom, self.text, self.date, self.phone,  self.klientID)
+
+
+class DriverSchema(ma.Schema):
+    class Meta:
+        model = Driver
+
+
+class KlientSchema(ma.Schema):
+    class Meta:
+        model = Klient
+
+
+class DriverProductsSchema(ma.Schema):
+    class Meta:
+        model = Driver_products
+
+
+class KlientProductsSchema(ma.Schema):
+    class Meta:
+        model = Klient_products
