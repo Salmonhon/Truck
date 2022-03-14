@@ -2,7 +2,7 @@ from datetime import datetime
 from configuration import app, db
 from flask_bcrypt import Bcrypt
 from flask import session, request, json, jsonify, redirect
-from db import Driver, Klient, Driver_products, Klient_products,DriverSchema,DriverProductsSchema,KlientProductsSchema,KlientSchema
+from db import *
 from itsdangerous import URLSafeTimedSerializer
 sec = URLSafeTimedSerializer('SECRETKEYITSISSECRETNAXUYILYA')
 bcrypt = Bcrypt(app)
@@ -204,14 +204,10 @@ def profile():
     request_id = request.get_json()
     session_id = "1"
     type = 'Driver'
-    user = Driver.query.first()
-    driver_schema = DriverSchema()
-    driver_output = driver_schema.dump(user).data
-
-    # products = Driver_products.query.all()
-    # product_schema = DriverProductsSchema(many=True)
-    # product_output = product_schema.dump(products).data
-    return jsonify({'driver': driver_output})
+    driver = Driver.query.get(session_id)
+    driver_products = Driver_products.query.all()
+    products = driver_products_schema.dump(driver_products)
+    return driver_schema.jsonify(driver), jsonify(products.data)
 
 
 
