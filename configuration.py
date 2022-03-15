@@ -14,7 +14,7 @@ app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
 api_cors_config = {
     'origins': ["http://localhost:5000"],
-    'methods': ['POST', 'GET']
+    'methods': ['POST', 'GET', 'DELETE']
 }
 CORS(app, resources={
     r'/v1/*': api_cors_config

@@ -1,7 +1,7 @@
 from datetime import datetime
-from configuration import app, db
+from configuration import app
 from flask_bcrypt import Bcrypt
-from flask import session, request, json, jsonify, redirect
+from flask import session, request, jsonify, redirect
 from db import *
 from itsdangerous import URLSafeTimedSerializer
 sec = URLSafeTimedSerializer('SECRETKEYITSISSECRETNAXUYILYA')
@@ -76,79 +76,18 @@ def logout():
     session.clear()  # remove author from session
     return redirect('/')
 
-def driver_product_serializer(Driver_products):
-    return {
-        'id': Driver_products.id,
-        'img': Driver_products.img,
-        'date': Driver_products.date,
-        'obyom': Driver_products.obyom,
-        'type_kuzov': Driver_products.type_kuzov,
-        'lokatsiya_strana': Driver_products.lokatsiya_strana,
-        'lokatsiy_gorod': Driver_products.lokatsiya_gorod,
-        'phone': Driver_products.phone,
-        'driverID': Driver_products.driverID
-    }
-
-
-def klient_product_serializer(Klient_products):
-    return {
-        'id': Klient_products.id,
-        'title': Klient_products.title,
-        'type_kuzov': Klient_products.type_kuzov,
-        'start_strana': Klient_products.start_starana,
-        'start_gorod': Klient_products.start_gorod,
-        'finish_strana': Klient_products.finish_starana,
-        'finish_gorod': Klient_products.finish_gorod,
-        'obyom': Klient_products.obyom,
-        'text': Klient_products.text,
-        'phone': Klient_products.phone,
-        'klientID': Klient_products.klientID
-    }
-
-
-
-
-
-def Driver_serializer(Driver):
-    return {
-        'id': Driver.id,
-        'sname': Driver.sname,
-        'email': Driver.email,
-        'password': Driver.pswd,
-
-    }
-
-
-
-
-
-def Klient_serializer(Klient):
-    return {
-        'id': Klient.id,
-        'sname': Klient.sname,
-        'email': Klient.email,
-        'password': Klient.pswd,
-        'izbranniy_id': Klient.liked,
-        'user_type': 'Klinet'
-    }
-
-
 
 @app.route('/v1/products', methods=['GET'])
 def products():
-    return jsonify([*map(klient_product_serializer, Klient_products.query.all())], [*map(driver_product_serializer, Driver_products.query.all())])
+    driver_products = Driver_products.query.all()
+    d_products = driver_products_schema.dump(driver_products)
 
 
-# @app.route('/filter_prudcts', methods=['GET','POST'])
-# def filtr():
-#     request_filtr = request.get_json()
-#     mode = request_filtr['mode']
-#     if mode == 'klient':
-#         if  request_filtr['start_strana']!='Null':
-#             if request_filtr['start_gorod']!='Null':
-#                 if request_filtr['finish_strana']!='Null':
-#                     if request_filtr['finish_gorod']!='Null':
-#             Klient_products.query.filter_by(start_strana=request_filtr['start_strana']).all()
+    klent_products = Klient_products.query.all()
+    k_products = klient_products_schema.dump(klent_products)
+
+    return jsonify({"Driver": d_products,
+                    "Klient": k_products})
 
 
 
@@ -167,12 +106,10 @@ def add_product():
             lokatsiya_strana = request_data['lokatsiya_strana']
             lokatsiya_gorod = request_data['lokatsiya_gorod']
             phone = request_data['phone']
-            print(img, obyom, type_kuzov, lokatsiya_strana, lokatsiya_gorod, phone)
-
-            product = Driver_products(img=img, obyom=obyom, type_kuzov=type_kuzov, lokatsiya_strana=lokatsiya_strana, lokatsiya_gorod=lokatsiya_gorod, phone=phone, driverID=request_data['id'])
+            driverID = request_data['id']
+            product = Driver_products(img=img, obyom=obyom, type_kuzov=type_kuzov, lokatsiya_strana=lokatsiya_strana, lokatsiya_gorod=lokatsiya_gorod, phone=phone, driverID=driverID)
             db.session.add(product)
             db.session.commit()
-            print('dafasfasfas')
             return 'Succseful added'
         else:
             return "No such kind of Driver"
@@ -183,15 +120,15 @@ def add_product():
             author_login = request_data['id']
             title = request_data['title']
             type_kuzov = request_data['type_kuzov']
-            start_staran = request_data['start_strana']
+            start_starana = request_data['start_strana']
             start_gorod = request_data['start_gorod']
-            finish_strana = request_data['finish_strana']
+            finish_starana = request_data['finish_strana']
             finish_gorod = request_data['finish_gorod']
             obyom = request_data['obyom']
             text = request_data['text']
             phone = request_data['phone']
 
-            product = Klient_products(title=title, type_kuzov=type_kuzov, start_starana=start_staran, start_gorod=start_gorod, finish_starana=finish_strana, finish_gorod=finish_gorod, obyom=obyom, text=text,phone=phone,klientID=author_login)
+            product = Klient_products(title=title, type_kuzov=type_kuzov, start_starana=start_starana, start_gorod=start_gorod, finish_starana=finish_starana, finish_gorod=finish_gorod, obyom=obyom, text=text, phone=phone, klientID=author_login)
             db.session.add(product)
             db.session.commit()
             return 'Succseful added'
@@ -202,13 +139,94 @@ def add_product():
 @app.route('/v1/profile', methods=['GET', 'POST'])
 def profile():
     request_id = request.get_json()
-    session_id = "1"
-    type = 'Driver'
-    driver = Driver.query.get(session_id)
-    driver_products = Driver_products.query.all()
-    products = driver_products_schema.dump(driver_products)
-    return driver_schema.jsonify(driver), jsonify(products.data)
+    session_id = request_id['id']
+    type = request_id['type']
+    if type == 'Driver':
+        driver = Driver.query.get(session_id)
+        driver_products = Driver_products.query.filter_by(driverID=session_id).all()
+        driver_result = driver_schema.dump(driver)
+        products = driver_products_schema.dump(driver_products)
+        return jsonify({'DRIVER': driver_result,
+                        'PRODUCTS': products})
+    else:
+        klient = Klient.query.get(session_id)
+        klent_products = Klient_products.query.filter_by(klientID=session_id).all()
+        klient_result = klient_schema.dump(klient)
+        products = klient_products_schema.dump(klent_products)
+        return jsonify({'KLIENT': klient_result,
+                        'PRODUCTS': products})
 
+
+
+@app.route('/v1/profile/product/edit/<id>', methods=['POST'])
+def edit(id):
+    request_data = request.get_json()
+    product_id = id
+    type = request_data['flag']
+
+    if type == "1":
+        img = request_data['img']
+        obyom = request_data['obyom']
+        type_kuzov = request_data['type_kuzov']
+        lokatsiya_strana = request_data['lokatsiya_strana']
+        lokatsiya_gorod = request_data['lokatsiya_gorod']
+        phone = request_data['phone']
+
+
+        product = Driver_products.query.get(product_id)
+        product.img = img
+        product.obyom = obyom
+        product.type_kuzov = type_kuzov
+        product.lokatsiya_strana = lokatsiya_strana
+        product.lokatsiya_gorod = lokatsiya_gorod
+        product.phone = phone
+
+        db.session.commit()
+        return "Succes edited"
+    else:
+        title = request_data['title']
+        type_kuzov = request_data['type_kuzov']
+        start_starana = request_data['start_strana']
+        start_gorod = request_data['start_gorod']
+        finish_starana = request_data['finish_strana']
+        finish_gorod = request_data['finish_gorod']
+        obyom = request_data['obyom']
+        text = request_data['text']
+        phone = request_data['phone']
+
+        k_product = Klient_products.query.get(product_id)
+        k_product.title = title
+        k_product.type_kuzov = type_kuzov
+        k_product.start_starana = start_starana
+        k_product.start_gorod = start_gorod
+        k_product.finish_starana = finish_starana
+        k_product.finish_gorod = finish_gorod
+        k_product.obyom = obyom
+        k_product.text = text
+        k_product.phone = phone
+
+        db.session.commit()
+        return "Succes edited"
+
+
+
+@app.route('/v1/profile/product/delete/<id>', methods=['DELETE'])
+def delete(id):
+    request_data = request.get_json()
+    product_id = id
+    type = request_data['flag']
+
+    if type == '1':
+        product = Driver_products.query.get(product_id)
+        db.session.delete(product)
+        db.session.commit()
+        return "Deleted"
+
+    else:
+        product = Klient_products.query.get(product_id)
+        db.session.delete(product)
+        db.session.commit()
+        return "Deleted"
 
 
 
