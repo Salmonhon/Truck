@@ -1,9 +1,15 @@
 from datetime import datetime
-from configuration import db,ma
+from configuration import db, ma
 
 
 
+izbranniy = db.Table("izbranniy",
+                    db.Column("k_product", db.Integer, db.ForeignKey('klient_products.id')),
+                    db.Column("user", db.Integer, db.ForeignKey('driver.id')))
 
+izbranniy_k = db.Table("izbranniy_k",
+                    db.Column("d_product", db.Integer, db.ForeignKey('driver_products.id')),
+                    db.Column("user", db.Integer, db.ForeignKey('klient.id')))
 
 class Driver(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -11,7 +17,7 @@ class Driver(db.Model):
     email = db.Column(db.String(100), nullable=False, unique=True)
     pswd = db.Column(db.String(100), nullable=False)
     driver_product = db.relationship('Driver_products', backref='driver', lazy=True)
-
+    following = db.relationship('Klient_products', secondary=izbranniy, backref='izbranniy', lazy='select')
 
     def __init__(self,sname,email,pswd):
         self.sname = sname
@@ -34,6 +40,7 @@ class Klient(db.Model):
     email = db.Column(db.String(100), nullable=False, unique=True)
     pswd = db.Column(db.String(100), nullable=False)
     klinet_product = db.relationship('Klient_products', backref='klient', lazy=True)
+    following = db.relationship('Driver_products', secondary=izbranniy_k, backref='izbranniy_k', lazy='select')
 
     def __init__(self, sname, email, pswd):
         self.sname = sname

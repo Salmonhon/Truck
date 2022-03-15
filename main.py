@@ -230,6 +230,28 @@ def delete(id):
 
 
 
+@app.route('/v1/izbranniy', methods=['POST'])
+def izbranniy():
+    request_data = request.get_json()
+    product_id = request_data['product_id']
+    session_id = request_data['session_id']
+    flag = request_data['flag']
+    if flag == '1':
+        user = Driver.query.filter_by(id=session_id).first()
+        product = Klient_products.query.filter_by(id=product_id).first()
+
+
+        user.following.append(product)
+        db.session.commit()
+        return "good"
+    else:
+        user = Klient.query.filter_by(id=session_id).first()
+        product = Driver_products.query.filter_by(id=product_id).first()
+
+        user.following.append(product)
+        db.session.commit()
+        return 'Goood'
+
 if __name__=="__main__":
     app.run(debug=True)
 
