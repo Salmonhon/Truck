@@ -19,6 +19,15 @@ class Driver(db.Model):
         self.pswd = pswd
 
 
+class DriverSchema(ma.Schema):
+    class Meta:
+        fields = ('id','sname', 'email', 'pswd')
+
+
+driver_schema = DriverSchema()
+drivers_schema = DriverSchema(many=True)
+
+
 class Klient(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     sname = db.Column(db.String(), nullable=False)
@@ -32,6 +41,16 @@ class Klient(db.Model):
         self.pswd = pswd
 
 
+class KlientSchema(ma.Schema):
+    class Meta:
+        fields = ('id','sname', 'email', 'pswd')
+
+
+klient_schema = KlientSchema()
+klients_schema = KlientSchema(many=True)
+
+
+
 class Driver_products(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     img = db.Column(db.String(), nullable=True)
@@ -43,15 +62,24 @@ class Driver_products(db.Model):
     phone = db.Column(db.String(), nullable=False)
     driverID = db.Column(db.Integer, db.ForeignKey('driver.id'), nullable=False)
 
-    def __init__(self,img,date,obyom,type_kuzov,lokatsiya_strana,lokatsiya_gorod,phone,driverID):
-        self.img = img
-        self.date = date
-        self.obyom = obyom
-        self.type_kuzov = type_kuzov
-        self.lokatsiya_strana = lokatsiya_strana
-        self.lokatsiya_gorod = lokatsiya_gorod
-        self.phone = phone
-        self.driverID = driverID
+    # def __init__(self, img, date, obyom, type_kuzov, lokatsiya_strana, lokatsiya_gorod, phone, driverID):
+    #     self.img = img
+    #     self.date = date
+    #     self.obyom = obyom
+    #     self.type_kuzov = type_kuzov
+    #     self.lokatsiya_strana = lokatsiya_strana
+    #     self.lokatsiya_gorod = lokatsiya_gorod
+    #     self.phone = phone
+    #     self.driverID = driverID
+
+
+class DriverProductsSchema(ma.Schema):
+    class Meta:
+        fields = ('id', "img", "date", "obyom", "type_kuzov", "lokatsiya_strana", "lokatsiya_gorod", "phone", "driverID")
+
+
+driver_product_schema = DriverProductsSchema()
+driver_products_schema = DriverProductsSchema(many=True)
 
 
 class Klient_products(db.Model):
@@ -68,51 +96,24 @@ class Klient_products(db.Model):
     phone = db.Column(db.Integer, nullable=False)
     klientID = db.Column(db.Integer, db.ForeignKey('klient.id'), nullable=False)
 
-    def __init__(self, title, start_strana, klientID, text, start_gorod, finish_strana, finish_gorod, date, obyom, type_kuzov, phone):
-        self.title = title
-        self.date = date
-        self.obyom = obyom
-        self.type_kuzov = type_kuzov
-        self.start_strana = start_strana
-        self.start_gorod = start_gorod
-        self.finish_strana = finish_strana
-        self.finish_gorod = finish_gorod
-        self.text = text
-        self.phone = phone
-        self.klientID = klientID
+    # def __init__(self, title, start_starana, klientID, text, start_gorod, finish_starana, finish_gorod, date, obyom, type_kuzov, phone):
+    #     self.title = title
+    #     self.date = date
+    #     self.obyom = obyom
+    #     self.type_kuzov = type_kuzov
+    #     self.start_starana = start_starana
+    #     self.start_gorod = start_gorod
+    #     self.finish_starana = finish_starana
+    #     self.finish_gorod = finish_gorod
+    #     self.text = text
+    #     self.phone = phone
+    #     self.klientID = klientID
 
 
-class DriverSchema(ma.Schema):
-    class Meta:
-        fields = ('id','sname', 'email', 'pswd')
-
-
-driver_schema = DriverSchema()
-drivers_schema = DriverSchema(many=True)
-
-
-class KlientSchema(ma.Schema):
-    class Meta:
-        fields = ('id','sname', 'email', 'pswd')
-
-
-klient_schema = KlientSchema()
-klients_schema = KlientSchema(many=True)
-
-
-class DriverProductsSchema(ma.Schema):
-    class Meta:
-        fields = ('id', "img", "date", "obyom", "type_kuzov", "lokatsiya_strana", "lokatsiya_gorod", "phone", "driverID")
-
-
-driver_product_schema = DriverProductsSchema()
-driver_products_schema = DriverProductsSchema(many=True)
-
-
-class KlientProductsSchema(ma.Schema):
+class ClientProductsSchema(ma.Schema):
     class Meta:
         fields = ('id', 'title', 'type_kuzov', 'start_strana', 'start_gorod', 'finish_strana', 'finish_gorod', 'obyom', 'text', 'date', 'phone', 'klientID')
 
 
-klient_product_schema = KlientProductsSchema()
-klient_products_schema = KlientProductsSchema(many=True)
+klient_product_schema = ClientProductsSchema()
+klient_products_schema = ClientProductsSchema(many=True)
