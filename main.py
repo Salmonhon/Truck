@@ -158,6 +158,20 @@ def profile():
 
 
 
+@app.route('/v1/product/<id>', methods=['POST'])
+def product(id):
+    request_data = request.get_json()
+    type = request_data['flag']
+    if type == "1":
+        product = Driver_products.query.get(id)
+        product_ = driver_product_schema.dump(product)
+        return jsonify({"Product":product_})
+    else:
+        product = Klient_products.query.get(id)
+        product_ = klient_product_schema.dump(product)
+        return jsonify({"Product": product_})
+
+
 @app.route('/v1/profile/product/edit/<id>', methods=['POST'])
 def edit(id):
     request_data = request.get_json()
