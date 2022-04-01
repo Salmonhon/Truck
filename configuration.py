@@ -13,7 +13,7 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 app.config['SQLALCHEMY_COMMIT_ON_TEARDOWN'] = True
 
 api_cors_config = {
-    'origins': ["http://localhost:5000"],
+    'origins': ["http://localhost:3000"],
     'methods': ['POST', 'GET', 'DELETE']
 }
 CORS(app, resources={
